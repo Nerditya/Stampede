@@ -1,0 +1,24 @@
+# ===== Java / Maven (backend) =====
+target/
+*.class
+*.jar
+*.war
+!.mvn/wrapper/maven-wrapper.jar
+
+# ===== Node / React (frontend, added later) =====
+node_modules/
+dist/
+build/
+.vite/
+
+# ===== Env / secrets =====
+.env
+.env.local
+*.log
+
+# ===== IDE / OS =====
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
