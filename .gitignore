@@ -1,9 +1,15 @@
 # ===== Java / Maven (backend) =====
 target/
+bin/
 *.class
 *.jar
 *.war
 !.mvn/wrapper/maven-wrapper.jar
+
+# ===== IDE project files =====
+.project
+.classpath
+.settings/
 
 # ===== Node / React (frontend, added later) =====
 node_modules/
