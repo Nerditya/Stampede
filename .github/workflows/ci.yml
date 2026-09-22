@@ -1,0 +1,40 @@
+name: CI
+
+# triggers: run on every push and every pull request to main
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest       # free GitHub-hosted Linux VM
+
+    steps:
+      # Step 1: check out the repo code onto the runner
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: install Java 21 on the runner
+      # (we use 21 here instead of 25 because GitHub's runners
+      #  support Java 21 LTS out of the box via Temurin)
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      # Step 3: cache Maven dependencies
+      # so GitHub doesn't re-download Spring Boot on every run
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # Step 4: compile and run all JUnit tests
+      - name: Build and test
+        working-directory: backend
+        run: mvn test
