@@ -67,15 +67,41 @@ Thread-2: read stock=5 → CAS(5→4) → FAIL (it's 4 now) → retry → read 4
 
 Stock can never go negative. No mutex, no blocking.
 
-### Load capacity (estimated)
+### Load test results (k6)
 
-| Concurrent users | Throughput | Latency (p99) | Notes |
-|---|---|---|---|
-| 50 | ~40,000 req/s | < 5ms | Purely CPU/memory bound |
-| 200 | ~40,000 req/s | < 10ms | Thread pool fully utilised |
-| 500 | ~35,000 req/s | ~20ms | Tomcat queue pressure |
+Two tests run against a single local server (200 VUs, stock=100 for product `p1`).
 
-*Load test results will be added after k6 testing.*
+#### Stress test — no think time (maximum hammering)
+
+```
+vus: 200 | duration: 10s | total requests: 62,381
+```
+
+| Metric | Value |
+|---|---|
+| Throughput | ~6,200 req/s |
+| Purchased (correct) | 100 / 100 — no oversell |
+| Sold out (correct 409) | 62,205 |
+| Connection errors | 76 (0.12%) |
+| Avg latency (all) | 23ms |
+| p(95) latency | 62ms |
+
+#### Realistic test — ~1s think time between requests (normal distribution, σ=0.3s)
+
+```
+vus: 200 | duration: 30s | total requests: 6,030
+```
+
+| Metric | Value |
+|---|---|
+| Throughput | ~192 req/s |
+| Purchased (correct) | 100 / 100 — no oversell |
+| Sold out (correct 409) | 5,833 |
+| Connection errors | 97 (1.6%) |
+| Avg latency (all) | 8.66ms |
+| p(95) latency | 2.58ms |
+
+**Key finding:** AtomicInteger CAS never oversold — exactly 100 orders placed under both test conditions. Connection drops (76–97) occurred at peak burst when all 200 VUs hit simultaneously before think time spread them out. These are Tomcat thread pool exhaustion drops, not logic errors.
 
 ### Limitations
 
