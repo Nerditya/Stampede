@@ -103,6 +103,49 @@ vus: 200 | duration: 30s | total requests: 6,030
 
 **Key finding:** AtomicInteger CAS never oversold — exactly 100 orders placed under both test conditions. Connection drops (76–97) occurred at peak burst when all 200 VUs hit simultaneously before think time spread them out. These are Tomcat thread pool exhaustion drops, not logic errors.
 
+#### Latest Linux stress test — 1,000 concurrent users
+
+This run used the `load-tests/v1-1000-users.js` test against the locally running Java backend. It is a separate result from the earlier Windows benchmark above.
+
+```
+vus: 1000 | duration: 10s | total requests: 250,347
+```
+
+| Metric | Value |
+|---|---|
+| Throughput | ~24,990 req/s |
+| Purchased (correct) | 100 / 100 — no oversell |
+| Sold out (correct 409) | 250,247 |
+| HTTP failures | 0% |
+| Checks passed | 100% |
+| Avg latency (all) | 30.64ms |
+| p(95) latency | 75.39ms |
+| Interrupted iterations | 0 |
+
+At 1,000 VUs, throughput increased only about 13% compared with the 200-VU run, while average latency increased about 3.8x and p(95) latency about 4.4x. This indicates the single local server was approaching saturation, but the test did not reach a functional breaking point: all requests received an expected `200` or `409` response.
+
+The test configures k6 to treat both `200` and `409` as expected responses, so `http_req_failed` reflects unexpected HTTP or network failures rather than valid sold-out responses.
+
+### Docker status
+
+The V1 backend image has been built locally:
+
+```text
+stampede-backend:latest
+```
+
+The Maven build stage uses the verified `maven:3.9.9-eclipse-temurin-21` image. PostgreSQL is also available locally as `postgres:16` for the planned V2 database setup. V1 does not use PostgreSQL yet; products, stock, and orders are still stored in JVM memory.
+
+To run the backend image:
+
+```bash
+docker run --rm --name stampede-backend \
+	-p 8080:8080 \
+	stampede-backend:latest
+```
+
+To start the PostgreSQL container for V2 development, see [docker-instructions.md](docker-instructions.md).
+
 ### Limitations
 
 1. **No persistence** — restart the server and all stock + order data is lost. Stock resets to initial values even if items were sold.
