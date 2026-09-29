@@ -1,6 +1,23 @@
 spring:
   application:
     name: stampede-backend
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/stampede}
+    username: ${DB_USERNAME:stampede}
+    password: ${DB_PASSWORD:password}
+  jpa:
+    open-in-view: false     # don't keep the DB session open during view rendering (best practice)
+    hibernate:
+      ddl-auto: update      # auto-creates/updates tables from @Entity classes (dev). Use Flyway in real prod.
+    show-sql: true          # logs every SQL query — great for learning
+    properties:
+      hibernate:
+        format_sql: true
+
+# JWT settings — token lifetimes in milliseconds
+jwt:
+  access-token-expiry-ms: 900000      # 15 minutes
+  refresh-token-expiry-ms: 604800000  # 7 days
 
 server:
   port: 8080
