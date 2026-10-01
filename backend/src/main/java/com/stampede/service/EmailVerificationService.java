@@ -22,19 +22,19 @@ public class EmailVerificationService {
 
     private final EmailVerificationTokenRepository tokenRepository;
     private final PersonRepository personRepository;
-    private final ResendEmailService resendEmailService;
+    private final SmtpEmailService smtpEmailService;
     private final String frontendUrl;
     private final Duration tokenLifetime;
     private final SecureRandom secureRandom = new SecureRandom();
 
     public EmailVerificationService(EmailVerificationTokenRepository tokenRepository,
                                     PersonRepository personRepository,
-                                    ResendEmailService resendEmailService,
+                                    SmtpEmailService smtpEmailService,
                                     @Value("${app.frontend-url}") String frontendUrl,
                                     @Value("${app.email-verification-token-lifetime:PT30M}") Duration tokenLifetime) {
         this.tokenRepository = tokenRepository;
         this.personRepository = personRepository;
-        this.resendEmailService = resendEmailService;
+        this.smtpEmailService = smtpEmailService;
         this.frontendUrl = frontendUrl;
         this.tokenLifetime = tokenLifetime;
     }
@@ -45,7 +45,7 @@ public class EmailVerificationService {
         String rawToken = randomToken();
         tokenRepository.save(new EmailVerificationToken(
                 hash(rawToken), person.getPersonId(), Instant.now().plus(tokenLifetime)));
-        resendEmailService.sendVerificationEmail(
+        smtpEmailService.sendVerificationEmail(
                 person.getEmail(), frontendUrl + "/verify-email?token=" + rawToken);
     }
 

@@ -13,6 +13,17 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 # JWT settings — token lifetimes in milliseconds
 jwt:
@@ -26,7 +37,3 @@ server:
 app:
   frontend-url: ${FRONTEND_URL:http://localhost:5173}
   email-verification-token-lifetime: PT30M
-
-resend:
-  api-key: ${RESEND_API_KEY:}
-  from: ${RESEND_FROM:onboarding@resend.dev}
