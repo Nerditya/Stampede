@@ -93,6 +93,7 @@ jobs:
             --add-cloudsql-instances "$INSTANCE_CONNECTION_NAME" \
             --set-env-vars "DB_URL=jdbc:postgresql:///stampede?cloudSqlInstance=${INSTANCE_CONNECTION_NAME}&socketFactory=com.google.cloud.sql.postgres.SocketFactory,DB_USERNAME=stampede_app" \
             --set-env-vars "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
+            --set-secrets "JWT_PRIVATE_KEY=jwt-private-key:latest" \
             --quiet
 
   deploy-frontend:
