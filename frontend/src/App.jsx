@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import ProductCard from './ProductCard'
 import Cart from './components/Cart'
-import Login from './components/Login'
-import Register from './components/Register'
+import AuthPage from './components/AuthPage'
 import { useCart } from './context/CartContext'
 import { useAuth } from './context/AuthContext'
 
@@ -14,7 +13,6 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [cartOpen, setCartOpen] = useState(false)
-  const [authView, setAuthView] = useState(null) // null | 'login' | 'register'
 
   const cartCount = items.reduce((sum, item) => sum + item.quantity, 0)
 
@@ -34,8 +32,13 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    loadProducts()
-  }, [loadProducts])
+    if (isAuthenticated) loadProducts()
+  }, [isAuthenticated, loadProducts])
+
+  // not logged in → show the login / register pages
+  if (!isAuthenticated) {
+    return <AuthPage />
+  }
 
   return (
     <>
@@ -46,11 +49,7 @@ export default function App() {
         </div>
 
         <div className="header-actions">
-          {isAuthenticated ? (
-            <button className="btn btn-ghost" onClick={logout}>Logout</button>
-          ) : (
-            <button className="btn btn-ghost" onClick={() => setAuthView('login')}>Login</button>
-          )}
+          <button className="btn btn-ghost" onClick={logout}>Logout</button>
           <button className="btn btn-primary cart-toggle" onClick={() => setCartOpen(true)}>
             🛒 Cart
             {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
@@ -82,28 +81,10 @@ export default function App() {
             </div>
             <Cart
               onOrderPlaced={() => loadProducts()}
-              onRequireLogin={() => { setCartOpen(false); setAuthView('login') }}
+              onRequireLogin={() => setCartOpen(false)}
             />
           </aside>
         </>
-      )}
-
-      {authView && (
-        <div className="modal" onClick={() => setAuthView(null)}>
-          <div className="modal-card" onClick={e => e.stopPropagation()}>
-            {authView === 'login' ? (
-              <Login
-                onSwitchToRegister={() => setAuthView('register')}
-                onSuccess={() => setAuthView(null)}
-              />
-            ) : (
-              <Register
-                onSwitchToLogin={() => setAuthView('login')}
-                onSuccess={() => setAuthView(null)}
-              />
-            )}
-          </div>
-        </div>
       )}
     </>
   )
