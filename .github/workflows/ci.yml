@@ -108,6 +108,7 @@ jobs:
       REGION: asia-south1
       ARTIFACT_REPOSITORY: stampede
       SERVICE_NAME: stampede-frontend
+      RUNTIME_SERVICE_ACCOUNT: stampede-runtime@stampede-510308.iam.gserviceaccount.com
 
     steps:
       - name: Checkout code
@@ -143,5 +144,6 @@ jobs:
             --region "$REGION" \
             --platform managed \
             --allow-unauthenticated \
+            --service-account "$RUNTIME_SERVICE_ACCOUNT" \
             --port 8080 \
             --quiet
