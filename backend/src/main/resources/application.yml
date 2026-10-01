@@ -22,3 +22,11 @@ jwt:
 
 server:
   port: 8080
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:5173}
+  email-verification-token-lifetime: PT30M
+
+resend:
+  api-key: ${RESEND_API_KEY:}
+  from: ${RESEND_FROM:onboarding@resend.dev}

@@ -5,9 +5,15 @@ import AuthPage from './components/AuthPage'
 import { Bag, LogOut, Close } from './components/icons'
 import { useCart } from './context/CartContext'
 import { useAuth } from './context/AuthContext'
+import VerifyEmail from './components/VerifyEmail'
 
 export default function App() {
   const { isAuthenticated, logout } = useAuth()
+
+  if (window.location.pathname === '/verify-email') {
+    return <VerifyEmail />
+  }
+
   const { items } = useCart()
 
   const [products, setProducts] = useState([])

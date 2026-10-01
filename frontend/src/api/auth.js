@@ -43,7 +43,13 @@ export async function registerApi(name, email, password) {
     body: JSON.stringify({ name, email, password }),
   })
   if (!res.ok) throw new Error(await errorMessage(res))
-  return res.json() // { accessToken, refreshToken, tokenType }
+  return res.json() // { message }
+}
+
+export async function verifyEmailApi(token) {
+  const res = await fetch(`/api/auth/verify?token=${encodeURIComponent(token)}`)
+  if (!res.ok) throw new Error(await errorMessage(res))
+  return res.json()
 }
 
 export async function loginApi(email, password) {

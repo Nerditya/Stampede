@@ -27,9 +27,7 @@ export function AuthProvider({ children }) {
   }
 
   async function register(name, email, password) {
-    const tokens = await registerApi(name, email, password)
-    setTokens(tokens)
-    setIsAuthenticated(true)
+    return registerApi(name, email, password)
   }
 
   async function logout() {

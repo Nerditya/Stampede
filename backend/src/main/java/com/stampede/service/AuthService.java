@@ -3,6 +3,7 @@ package com.stampede.service;
 import com.stampede.dto.AuthResponse;
 import com.stampede.dto.LoginRequest;
 import com.stampede.dto.RegisterRequest;
+import com.stampede.dto.RegistrationResponse;
 import com.stampede.exception.EmailAlreadyExistsException;
 import com.stampede.model.Person;
 import com.stampede.model.RefreshToken;
@@ -26,22 +27,25 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final EmailVerificationService emailVerificationService;
     private final long refreshTokenExpiryMs;
 
     public AuthService(PersonRepository personRepository,
                        RefreshTokenRepository refreshTokenRepository,
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService,
+                       EmailVerificationService emailVerificationService,
                        @Value("${jwt.refresh-token-expiry-ms}") long refreshTokenExpiryMs) {
         this.personRepository = personRepository;
         this.refreshTokenRepository = refreshTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.emailVerificationService = emailVerificationService;
         this.refreshTokenExpiryMs = refreshTokenExpiryMs;
     }
 
     @Transactional
-    public AuthResponse register(RegisterRequest request) {
+    public RegistrationResponse register(RegisterRequest request) {
         if (personRepository.existsByEmail(request.getEmail())) {
             throw new EmailAlreadyExistsException("Email already registered: " + request.getEmail());
         }
@@ -52,7 +56,8 @@ public class AuthService {
                 passwordEncoder.encode(request.getPassword()),
                 Role.USER);
         personRepository.save(person);
-        return issueTokens(person);
+            emailVerificationService.sendVerificationEmail(person);
+            return new RegistrationResponse("Check your email to verify your account");
     }
 
     @Transactional
@@ -63,7 +68,15 @@ public class AuthService {
         if (!passwordEncoder.matches(request.getPassword(), person.getPasswordHash())) {
             throw new BadCredentialsException("Invalid email or password");
         }
+        if (!person.isEmailVerified()) {
+            throw new BadCredentialsException("Please verify your email before logging in");
+        }
         return issueTokens(person);
+    }
+
+    @Transactional
+    public void verifyEmail(String token) {
+        emailVerificationService.verify(token);
     }
 
     /**

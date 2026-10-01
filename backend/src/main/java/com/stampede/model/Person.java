@@ -29,6 +29,9 @@ public class Person {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(nullable = false)
+    private boolean emailVerified;
+
     private Instant createdAt;
 
     protected Person() {
@@ -41,6 +44,7 @@ public class Person {
         this.email = email;
         this.passwordHash = passwordHash;
         this.role = role;
+        this.emailVerified = false;
         this.createdAt = Instant.now();
     }
 
@@ -50,4 +54,7 @@ public class Person {
     public String getPasswordHash() { return passwordHash; }
     public Role getRole()           { return role; }
     public Instant getCreatedAt()   { return createdAt; }
+    public boolean isEmailVerified() { return emailVerified; }
+
+    public void markEmailVerified() { this.emailVerified = true; }
 }

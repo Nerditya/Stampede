@@ -8,6 +8,7 @@ export default function Register({ onSwitchToLogin }) {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
+  const [message, setMessage] = useState(null)
   const [busy, setBusy] = useState(false)
 
   async function handleSubmit(e) {
@@ -15,12 +16,29 @@ export default function Register({ onSwitchToLogin }) {
     setBusy(true)
     setError(null)
     try {
-      await register(name, email, password)
+      const response = await register(name, email, password)
+      setMessage(response.message)
     } catch (err) {
       setError(err.message)
     } finally {
       setBusy(false)
     }
+  }
+
+  if (message) {
+    return (
+      <div className="form">
+        <span className="form-kicker">Almost there</span>
+        <h2 className="form-title">Check your email</h2>
+        <p className="alert-success">{message}</p>
+        <p className="form-switch">
+          Already verified?{' '}
+          <button type="button" className="link-btn" onClick={onSwitchToLogin}>
+            Log in
+          </button>
+        </p>
+      </div>
+    )
   }
 
   return (
