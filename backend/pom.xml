@@ -45,6 +45,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Cloud SQL connector for the Unix socket used by Cloud Run -->
+        <dependency>
+            <groupId>com.google.cloud.sql</groupId>
+            <artifactId>postgres-socket-factory</artifactId>
+            <version>1.25.0</version>
+        </dependency>
+
         <!-- Spring Security — authentication + endpoint protection -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
