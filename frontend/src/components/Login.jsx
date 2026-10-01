@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { ArrowRight } from './icons'
 
-export default function Login({ onSwitchToRegister, onSuccess }) {
+export default function Login({ onSwitchToRegister }) {
   const { login } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -14,7 +15,6 @@ export default function Login({ onSwitchToRegister, onSuccess }) {
     setError(null)
     try {
       await login(email, password)
-      onSuccess?.()
     } catch (err) {
       setError(err.message)
     } finally {
@@ -24,34 +24,44 @@ export default function Login({ onSwitchToRegister, onSuccess }) {
 
   return (
     <form className="form" onSubmit={handleSubmit}>
-      <h2 className="form-title">Welcome back</h2>
-      <p className="form-sub">Log in to place your order.</p>
+      <span className="form-kicker">Members only</span>
+      <h2 className="form-title">Log in</h2>
 
-      <input
-        className="input"
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-        required
-      />
-      <input
-        className="input"
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
-        required
-      />
+      <div className="field">
+        <label className="field-label" htmlFor="login-email">Email</label>
+        <input
+          id="login-email"
+          className="input"
+          type="email"
+          autoComplete="email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          required
+        />
+      </div>
+
+      <div className="field">
+        <label className="field-label" htmlFor="login-password">Password</label>
+        <input
+          id="login-password"
+          className="input"
+          type="password"
+          autoComplete="current-password"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+        />
+      </div>
 
       {error && <p className="alert-error">{error}</p>}
 
-      <button className="btn btn-primary btn-block" type="submit" disabled={busy}>
-        {busy ? 'Logging in…' : 'Log in'}
+      <button className="btn btn-accent btn-block" type="submit" disabled={busy}>
+        {busy ? 'Logging in…' : 'Enter the drop'}
+        {!busy && <ArrowRight size={16} />}
       </button>
 
       <p className="form-switch">
-        Need an account?{' '}
+        No account?{' '}
         <button type="button" className="link-btn" onClick={onSwitchToRegister}>
           Register
         </button>

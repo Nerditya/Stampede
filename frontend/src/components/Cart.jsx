@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
+import { Plus, Minus, Trash, ArrowRight } from './icons'
 
 // formats paisa → rupees, e.g. 14999 → ₹149.99
 function formatPrice(paisa) {
@@ -40,7 +41,7 @@ export default function Cart({ onOrderPlaced, onRequireLogin }) {
       <div className="drawer-body">
         {items.length === 0 ? (
           <p className="cart-empty">
-            {success ? `✅ Order ${success} placed!` : 'Your cart is empty.'}
+            {success ? `Order ${success} placed` : 'Cart is empty'}
           </p>
         ) : (
           items.map(item => (
@@ -48,16 +49,22 @@ export default function Cart({ onOrderPlaced, onRequireLogin }) {
               <div>
                 <div className="cart-line-name">{item.name}</div>
                 <div className="cart-line-price">
-                  {formatPrice(item.price)} × {item.quantity}
+                  {formatPrice(item.price)} × {item.quantity} = {formatPrice(item.price * item.quantity)}
                 </div>
               </div>
               <div className="cart-line-actions">
                 <div className="stepper">
-                  <button className="stepper-btn" onClick={() => updateQuantity(item.productId, item.quantity - 1)}>−</button>
+                  <button className="stepper-btn" onClick={() => updateQuantity(item.productId, item.quantity - 1)} aria-label="Decrease">
+                    <Minus size={15} />
+                  </button>
                   <span className="stepper-qty">{item.quantity}</span>
-                  <button className="stepper-btn" onClick={() => updateQuantity(item.productId, item.quantity + 1)}>+</button>
+                  <button className="stepper-btn" onClick={() => updateQuantity(item.productId, item.quantity + 1)} aria-label="Increase">
+                    <Plus size={15} />
+                  </button>
                 </div>
-                <button className="cart-remove" onClick={() => removeItem(item.productId)}>✕</button>
+                <button className="cart-remove" onClick={() => removeItem(item.productId)} aria-label="Remove item">
+                  <Trash size={17} />
+                </button>
               </div>
             </div>
           ))
@@ -72,10 +79,11 @@ export default function Cart({ onOrderPlaced, onRequireLogin }) {
           </div>
 
           {error && <p className="alert-error">{error}</p>}
-          {success && <p className="alert-success">✅ Order {success} placed!</p>}
+          {success && <p className="alert-success">Order {success} placed</p>}
 
-          <button className="btn btn-success btn-block" onClick={handleCheckout} disabled={busy}>
+          <button className="btn btn-accent btn-block" onClick={handleCheckout} disabled={busy}>
             {busy ? 'Placing order…' : isAuthenticated ? 'Checkout' : 'Log in to checkout'}
+            {!busy && <ArrowRight size={16} />}
           </button>
         </div>
       )}

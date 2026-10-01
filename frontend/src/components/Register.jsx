@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
+import { ArrowRight } from './icons'
 
-export default function Register({ onSwitchToLogin, onSuccess }) {
+export default function Register({ onSwitchToLogin }) {
   const { register } = useAuth()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -15,7 +16,6 @@ export default function Register({ onSwitchToLogin, onSuccess }) {
     setError(null)
     try {
       await register(name, email, password)
-      onSuccess?.()
     } catch (err) {
       setError(err.message)
     } finally {
@@ -25,43 +25,59 @@ export default function Register({ onSwitchToLogin, onSuccess }) {
 
   return (
     <form className="form" onSubmit={handleSubmit}>
-      <h2 className="form-title">Create account</h2>
-      <p className="form-sub">Join the stampede.</p>
+      <span className="form-kicker">Get on the list</span>
+      <h2 className="form-title">Register</h2>
 
-      <input
-        className="input"
-        type="text"
-        placeholder="Name"
-        value={name}
-        onChange={e => setName(e.target.value)}
-        required
-      />
-      <input
-        className="input"
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-        required
-      />
-      <input
-        className="input"
-        type="password"
-        placeholder="Password (min 8 characters)"
-        value={password}
-        onChange={e => setPassword(e.target.value)}
-        minLength={8}
-        required
-      />
+      <div className="field">
+        <label className="field-label" htmlFor="reg-name">Name</label>
+        <input
+          id="reg-name"
+          className="input"
+          type="text"
+          autoComplete="name"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          required
+        />
+      </div>
+
+      <div className="field">
+        <label className="field-label" htmlFor="reg-email">Email</label>
+        <input
+          id="reg-email"
+          className="input"
+          type="email"
+          autoComplete="email"
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          required
+        />
+      </div>
+
+      <div className="field">
+        <label className="field-label" htmlFor="reg-password">Password</label>
+        <input
+          id="reg-password"
+          className="input"
+          type="password"
+          autoComplete="new-password"
+          placeholder="Min 8 characters"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          minLength={8}
+          required
+        />
+      </div>
 
       {error && <p className="alert-error">{error}</p>}
 
-      <button className="btn btn-primary btn-block" type="submit" disabled={busy}>
-        {busy ? 'Creating…' : 'Register'}
+      <button className="btn btn-accent btn-block" type="submit" disabled={busy}>
+        {busy ? 'Creating…' : 'Create account'}
+        {!busy && <ArrowRight size={16} />}
       </button>
 
       <p className="form-switch">
-        Have an account?{' '}
+        Already in?{' '}
         <button type="button" className="link-btn" onClick={onSwitchToLogin}>
           Log in
         </button>
