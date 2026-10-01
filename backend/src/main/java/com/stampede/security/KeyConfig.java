@@ -12,6 +12,7 @@ import java.security.PrivateKey;
 import java.security.interfaces.RSAPrivateCrtKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 /**
@@ -48,7 +49,14 @@ public class KeyConfig {
 
     private KeyPair keyPairFromPrivateKey(String encodedKey) {
         try {
-            byte[] keyBytes = Base64.getDecoder().decode(encodedKey);
+            byte[] storedBytes = Base64.getDecoder().decode(encodedKey);
+            String storedText = new String(storedBytes, StandardCharsets.UTF_8).trim();
+            byte[] keyBytes = storedText.startsWith("-----BEGIN PRIVATE KEY-----")
+                    ? Base64.getDecoder().decode(storedText
+                    .replace("-----BEGIN PRIVATE KEY-----", "")
+                    .replace("-----END PRIVATE KEY-----", "")
+                    .replaceAll("\\s", ""))
+                    : storedBytes;
             KeyFactory keyFactory = KeyFactory.getInstance("RSA");
             PrivateKey privateKey = keyFactory.generatePrivate(new PKCS8EncodedKeySpec(keyBytes));
                 RSAPrivateCrtKey rsaPrivateKey = (RSAPrivateCrtKey) privateKey;
