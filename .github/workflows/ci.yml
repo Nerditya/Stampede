@@ -147,3 +147,15 @@ jobs:
             --service-account "$RUNTIME_SERVICE_ACCOUNT" \
             --port 8080 \
             --quiet
+
+      - name: Publish frontend URL
+        run: |
+          FRONTEND_URL=$(gcloud run services describe "$SERVICE_NAME" \
+            --region "$REGION" \
+            --format="value(status.url)")
+          echo "Frontend URL: $FRONTEND_URL"
+          {
+            echo "### Frontend deployment"
+            echo
+            echo "Frontend URL: $FRONTEND_URL"
+          } >> "$GITHUB_STEP_SUMMARY"
