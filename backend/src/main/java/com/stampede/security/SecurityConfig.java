@@ -3,6 +3,7 @@ package com.stampede.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -33,6 +34,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(
+                    (request, response, exception) -> response.sendError(HttpServletResponse.SC_UNAUTHORIZED)))
                 .authorizeHttpRequests(auth -> auth
                         // public endpoints
                         .requestMatchers("/api/auth/**", "/api/health").permitAll()

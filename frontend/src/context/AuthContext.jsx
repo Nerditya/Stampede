@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import {
   getAccessToken,
   getRefreshToken,
@@ -19,6 +19,15 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   // seed from storage so a page refresh (F5) keeps you logged in
   const [isAuthenticated, setIsAuthenticated] = useState(() => !!getAccessToken())
+
+  useEffect(() => {
+    function handleSessionExpired() {
+      clearTokens()
+      setIsAuthenticated(false)
+    }
+    window.addEventListener('stampede:session-expired', handleSessionExpired)
+    return () => window.removeEventListener('stampede:session-expired', handleSessionExpired)
+  }, [])
 
   async function login(email, password) {
     const tokens = await loginApi(email, password)

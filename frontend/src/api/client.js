@@ -12,6 +12,13 @@ import {
   refreshApi,
 } from './auth'
 
+let refreshPromise
+
+function expireSession() {
+  clearTokens()
+  window.dispatchEvent(new Event('stampede:session-expired'))
+}
+
 function withAuth(options, token) {
   return {
     ...options,
@@ -27,13 +34,22 @@ export async function authFetch(url, options = {}) {
   let res = await fetch(url, withAuth(options, token))
 
   // access token expired/invalid → attempt a single refresh, then retry
-  if (res.status === 401 && getRefreshToken()) {
+  if (res.status === 401) {
+    const refreshToken = getRefreshToken()
+    if (!refreshToken) {
+      expireSession()
+      return res
+    }
+
     try {
-      const tokens = await refreshApi(getRefreshToken())
+      refreshPromise ??= refreshApi(refreshToken).finally(() => {
+        refreshPromise = undefined
+      })
+      const tokens = await refreshPromise
       setTokens(tokens)
       res = await fetch(url, withAuth(options, tokens.accessToken))
     } catch {
-      clearTokens() // refresh failed → force re-login
+      expireSession()
     }
   }
 
