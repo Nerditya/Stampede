@@ -40,6 +40,7 @@ public class SecurityConfig {
                         // public endpoints
                         .requestMatchers("/api/auth/**", "/api/health").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products", "/api/products/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/products/*/restock").hasRole("ADMIN")
                         // everything else requires a valid access token
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

@@ -37,4 +37,12 @@ public class ProductService {
     public boolean decrementStock(String productId, int quantity) {
         return productRepository.decrementStock(productId, quantity) == 1;
     }
+
+    @Transactional
+    public Product restock(String productId, int quantity) {
+        if (productRepository.restock(productId, quantity) != 1) {
+            return null;
+        }
+        return productRepository.findById(productId).orElse(null);
+    }
 }

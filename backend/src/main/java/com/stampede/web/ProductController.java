@@ -1,12 +1,16 @@
 package com.stampede.web;
 
+import com.stampede.dto.RestockRequest;
 import com.stampede.model.Product;
 import com.stampede.service.ProductService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +37,16 @@ public class ProductController {
     @GetMapping("/products/{productId}")
     public ResponseEntity<?> getProduct(@PathVariable String productId) {
         Product product = productService.getProduct(productId);
+        if (product == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(toResponse(product));
+    }
+
+    @PostMapping("/products/{productId}/restock")
+    public ResponseEntity<?> restock(@PathVariable String productId,
+                                     @Valid @RequestBody RestockRequest request) {
+        Product product = productService.restock(productId, request.getQuantity());
         if (product == null) {
             return ResponseEntity.notFound().build();
         }
