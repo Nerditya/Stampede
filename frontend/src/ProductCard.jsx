@@ -17,9 +17,6 @@ export default function ProductCard({ product, index = 0 }) {
 
   const num = String(index + 1).padStart(2, '0')
   const sku = `STMP-${product.productId.toUpperCase()}`
-  const pct = product.initialStock
-    ? Math.max(0, Math.round((product.liveStock / product.initialStock) * 100))
-    : 0
 
   const tagClass = soldOut ? 'out' : lowStock ? 'low' : 'in'
   const tagText = soldOut ? 'Sold Out' : lowStock ? `Low · ${product.liveStock}` : 'In Stock'
@@ -51,11 +48,8 @@ export default function ProductCard({ product, index = 0 }) {
       </div>
 
       <div className="card-stock">
-        <div className="meter">
-          <div className="meter-fill" style={{ width: `${pct}%` }} />
-        </div>
         <span className="card-stock-num">
-          {soldOut ? 'Out of stock' : `${product.liveStock} / ${product.initialStock} remaining`}
+          {soldOut ? 'Out of stock' : `${product.liveStock.toLocaleString('en-IN')} units remaining`}
         </span>
       </div>
 
